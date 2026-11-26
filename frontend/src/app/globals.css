@@ -1,0 +1,247 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-risk-critical: var(--risk-critical);
+  --color-risk-high: var(--risk-high);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-low: var(--risk-low);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Canvas & ink: cool instrument-panel greys, not paper */
+  --background: #f2f4f8;
+  --foreground: #121c33;
+  --card: #ffffff;
+  --card-foreground: #121c33;
+  --popover: #ffffff;
+  --popover-foreground: #16212c;
+  --primary: #1c418c;
+  --primary-foreground: #f4f7fd;
+  --secondary: #e8edf2;
+  --secondary-foreground: #1b2835;
+  --muted: #eceff3;
+  --muted-foreground: #586574;
+  --accent: #e6edf4;
+  --accent-foreground: #16212c;
+  --destructive: #b42318;
+  --border: #dae0e7;
+  --input: #cfd6de;
+  --ring: #4a6fc0;
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #4a3aa7;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1b2835;
+  --sidebar-primary: #1c418c;
+  --sidebar-primary-foreground: #f5f8fb;
+  --sidebar-accent: #eaeff9;
+  --sidebar-accent-foreground: #16212c;
+  --sidebar-border: #e1e6ef;
+  --sidebar-ring: #5b8ab5;
+
+  /* Risk scale "navy + coral": Low/Medium/High are steps of the logo navy (more ink = more severe), Critical
+     alone breaks out in coral. Adjacent pairs pass CVD and normal-vision separation (ΔE ≥ 15).
+     mark = fills/bars/meters, ink = text, wash = badge background, on = text printed inside a fill. */
+  --risk-low: #86a3ea;
+  --risk-low-ink: #3e5fb5;
+  --risk-low-wash: #eef2fc;
+  --risk-low-on: #0c1630;
+  --risk-medium: #4d70cc;
+  --risk-medium-ink: #2f52ad;
+  --risk-medium-wash: #e5ebfa;
+  --risk-medium-on: #ffffff;
+  --risk-high: #223a8a;
+  --risk-high-ink: #1c3277;
+  --risk-high-wash: #dce3f5;
+  --risk-high-on: #ffffff;
+  --risk-critical: #e5484d;
+  --risk-critical-ink: #c42a30;
+  --risk-critical-wash: #fde8e8;
+  --risk-critical-on: #ffffff;
+  --meter-track: #d5dce4;
+
+  --series-1: #1c418c;
+  --grid: #e9edf2;
+  --axis: #c9d1db;
+  --avg-line: #d49a00;
+
+  /* Review workflow stages: neutral slate (darkest = needs action first) so they never read as risk levels */
+  --stage-1: #334155;
+  --stage-2: #64748b;
+  --stage-3: #a8b3c2;
+  --stage-1-on: #ffffff;
+  --stage-2-on: #ffffff;
+  --stage-3-on: #1e293b;
+
+  /* Status (reserved; always with an icon and words) */
+  --status-good: #1f8a4c;
+  --status-warning: #d08a00;
+
+  /* Posture band: the logo navy, deepened, for the one dark element on the page */
+  --band: #13295c;
+  --band-foreground: #f2f5fc;
+  --band-muted: #a9b8dc;
+  --band-track: #2a4380;
+
+  /* Change vs previous period: better / worse (always shown with an arrow and words, never colour alone) */
+  --delta-good: #1f6b41;
+  --delta-bad: #a8420a;
+}
+
+.dark {
+  --background: #10171e;
+  --foreground: #e3e9ef;
+  --card: #17212b;
+  --card-foreground: #e3e9ef;
+  --popover: #1b2631;
+  --popover-foreground: #e3e9ef;
+  --primary: #8eacf0;
+  --primary-foreground: #0c1630;
+  --secondary: #223040;
+  --secondary-foreground: #e3e9ef;
+  --muted: #1e2a36;
+  --muted-foreground: #95a3b2;
+  --accent: #223040;
+  --accent-foreground: #e3e9ef;
+  --destructive: #f2777a;
+  --border: #283745;
+  --input: #314252;
+  --ring: #5b8ab5;
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #9085e9;
+  --sidebar: #131c25;
+  --sidebar-foreground: #d5dde5;
+  --sidebar-primary: #8eacf0;
+  --sidebar-primary-foreground: #0e1a26;
+  --sidebar-accent: #1f2c39;
+  --sidebar-accent-foreground: #e3e9ef;
+  --sidebar-border: #223040;
+  --sidebar-ring: #5b8ab5;
+
+  /* Dark: brighter = more severe on the dark card */
+  --risk-low: #3e5aa8;
+  --risk-low-ink: #a9bdf0;
+  --risk-low-wash: #1d2943;
+  --risk-low-on: #ffffff;
+  --risk-medium: #6d8ee0;
+  --risk-medium-ink: #b6c8f6;
+  --risk-medium-wash: #223058;
+  --risk-medium-on: #0c1630;
+  --risk-high: #b4c6f7;
+  --risk-high-ink: #d6e0fb;
+  --risk-high-wash: #2a3a6b;
+  --risk-high-on: #0c1630;
+  --risk-critical: #ff6b6b;
+  --risk-critical-ink: #ff9c9c;
+  --risk-critical-wash: #3b1d22;
+  --risk-critical-on: #2a0a0a;
+  --meter-track: #33475a;
+
+  --series-1: #7f9fe8;
+  --grid: #223040;
+  --axis: #34465a;
+  --avg-line: #f2c14e;
+
+  --stage-1: #cbd5e1;
+  --stage-2: #8796aa;
+  --stage-3: #4b5a6e;
+  --stage-1-on: #1e293b;
+  --stage-2-on: #0f172a;
+  --stage-3-on: #ffffff;
+
+  --status-good: #4fc983;
+  --status-warning: #f2b84b;
+
+  --band: #172b5e;
+  --band-foreground: #eef2fb;
+  --band-muted: #9fb0d8;
+  --band-track: #2c4482;
+
+  --delta-good: #84d6a8;
+  --delta-bad: #ffb07f;
+}
+
+/* Risk colours on the navy posture band: brighter = more severe, coral for critical */
+.on-band {
+  --risk-low: #4a68bd;
+  --risk-medium: #7d9be6;
+  --risk-high: #c0d0f8;
+  --risk-critical: #ff6b6b;
+  --risk-low-on: #ffffff;
+  --risk-medium-on: #0c1630;
+  --risk-high-on: #0c1630;
+  --risk-critical-on: #2a0a0a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    font-feature-settings: "ss02";
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

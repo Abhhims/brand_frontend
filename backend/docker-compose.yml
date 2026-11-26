@@ -1,0 +1,91 @@
+# Backend-only stack. Independent of the frontend and of the legacy stack in ../deploy
+# (different ports: Postgres 5433, Redis 6380, S3 storage 9100, API 8020), so both can run side by side.
+#
+#   docker compose up -d postgres redis storage   # services only, run the API with `npm run dev`
+#   docker compose --profile app up -d --build   # everything in containers
+
+name: brandintel-node
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: brandintel
+      POSTGRES_PASSWORD: brandintel
+      POSTGRES_DB: brandintel
+    command: ["postgres", "-c", "max_connections=300", "-c", "shared_buffers=256MB"]
+    ports: ["5433:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brandintel -d brandintel"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    # AOF persistence so queued jobs survive a restart; noeviction so BullMQ jobs are never silently dropped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports: ["6380:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # S3-compatible object storage (RustFS, same as the legacy stack) for brand assets and evidence files.
+  # Console: http://localhost:9101
+  storage:
+    image: rustfs/rustfs:latest
+    environment:
+      RUSTFS_ACCESS_KEY: brandintel
+      RUSTFS_SECRET_KEY: brandintel-secret
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+    ports: ["9100:9000", "9101:9001"]
+    volumes: [storagedata:/data]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:9000/health || curl -fs http://127.0.0.1:9000/health"]
+      interval: 5s
+      retries: 30
+
+  migrate:
+    profiles: [app]
+    build: .
+    command: ["node", "dist/db/migrate.js"]
+    env_file: .env
+    environment: &svc-env
+      NODE_ENV: production
+      DATABASE_URL: postgres://brandintel:brandintel@postgres:5432/brandintel
+      REDIS_URL: redis://redis:6379/0
+      S3_ENDPOINT_URL: http://storage:9000
+      S3_PUBLIC_ENDPOINT_URL: http://localhost:9100
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    profiles: [app]
+    build: .
+    env_file: .env
+    environment: *svc-env
+    ports: ["8020:8020"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  worker:
+    profiles: [app]
+    build: .
+    command: ["node", "dist/worker.js"]
+    env_file: .env
+    environment: *svc-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  redisdata:
+  storagedata:

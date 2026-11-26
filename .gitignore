@@ -1,0 +1,17 @@
+# dependencies & build output
+node_modules/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# secrets
+.env
+.env.*
+!.env.example
+
+# logs / local tooling
+*.log
+.claude/settings.local.json
+.superpowers/

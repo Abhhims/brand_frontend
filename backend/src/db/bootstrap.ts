@@ -1,13 +1,11 @@
 /** First admin account: created only when the users table is empty. */
-import { argon2id, hash } from "argon2"
+import { hash } from "argon2"
 import { count } from "drizzle-orm"
+import { ARGON2_OPTIONS } from "../common/password.js"
 import { env } from "../config/env.js"
 import { db } from "../infra/db.js"
 import { logger } from "../infra/logger.js"
 import { users } from "./schema/index.js"
-
-/** Same parameters as the legacy argon2-cffi defaults, so existing password hashes keep verifying */
-export const ARGON2_OPTIONS = { type: argon2id, timeCost: 3, memoryCost: 65_536, parallelism: 4, hashLength: 32 } as const
 
 export async function ensureBootstrapAdmin(): Promise<void> {
   const [row] = await db.select({ n: count() }).from(users)

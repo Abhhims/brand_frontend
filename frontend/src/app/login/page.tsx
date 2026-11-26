@@ -19,8 +19,16 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
+/** Only same-origin paths; rejects "//host", "/\host", "javascript:" and control characters. */
 function safeNext(next: string | null): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/"
+  if (!next || !next.startsWith("/") || /[\\\u0000-\u001f\u007f]/.test(next)) return "/"
+  try {
+    const url = new URL(next, window.location.origin)
+    if (url.origin !== window.location.origin) return "/"
+    return url.pathname + url.search + url.hash
+  } catch {
+    return "/"
+  }
 }
 
 function LoginForm() {

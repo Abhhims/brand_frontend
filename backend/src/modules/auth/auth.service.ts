@@ -7,6 +7,7 @@
 import { verify as verifyPassword } from "argon2"
 import { createSigner, createVerifier } from "fast-jwt"
 import { AppError, unauthorized } from "../../common/errors.js"
+import { getDummyHash } from "../../common/password.js"
 import type { UserRow, UsersRepository } from "../users/users.repository.js"
 import type { LoginInput } from "./auth.dto.js"
 
@@ -29,9 +30,13 @@ export class AuthService {
 
   async login(input: LoginInput): Promise<{ token: string; user: UserRow }> {
     const user = await this.users.findByEmail(input.email)
-    const ok = user?.isActive && (await verifyPassword(user.passwordHash, input.password).catch(() => false))
-    if (!user || !ok) throw new AppError(401, "Invalid email or password")
-    return { token: this.sign({ sub: user.id, role: user.role }), user }
+    // Always run argon2 (against a dummy hash when there is no usable account) so response
+    // time does not reveal whether an email is registered or active.
+    const usable = user?.isActive ? user : undefined
+    const passwordHash = usable?.passwordHash ?? (await getDummyHash())
+    const valid = await verifyPassword(passwordHash, input.password).catch(() => false)
+    if (!usable || !valid) throw new AppError(401, "Invalid email or password")
+    return { token: this.sign({ sub: usable.id, role: usable.role }), user: usable }
   }
 
   /** The active user behind a bearer token, or 401 */
